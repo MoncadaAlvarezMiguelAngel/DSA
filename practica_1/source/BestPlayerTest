@@ -2,15 +2,31 @@ package Practica_01;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 class NbaJUnitTest{
-			
+	private static String file = System.getProperty("user.dir")
+			+File.separator+"src"
+			+File.separator+"Practica_01"
+			+File.separator;
+	
 	@Test
-	void testBest100deequals() {
+    void testVacio() {
+		BestPlayersV22.load(file+"Vacio.txt");
+		BestPlayersV22.numPlayers=10;
+        try {
+            BestPlayersV22.bestPlayersV2();
+            fail("Debería haber lanzado una excepción");
+        } catch (RuntimeException e) {
+            assertEquals("No hay jugadores", e.getMessage());
+        }
+    }		
+	@Test
+	void test10Mejores() {
 		
-		BestPlayersV22.load();
+		BestPlayersV22.load(file+"NbaStats.txt");
 		ArrayList<Player> Array1 = BestPlayersV22.bestPlayersV2();
 		 
 		assertEquals( 
