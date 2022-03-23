@@ -1,0 +1,29 @@
+package Practica_01;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
+import org.junit.jupiter.api.Test;
+
+class NbaJUnitTest{
+			
+	@Test
+	void testBest100deequals() {
+		
+		BestPlayersV22.load();
+		ArrayList<Player> Array1 = BestPlayersV22.bestPlayersV2();
+		 
+		assertEquals( 
+				"[# --> Name: LeBron James, Positions: [SG, SF, PF], Teams: [CLE, MIA]Puntos: 1031, " + 
+				"# --> Name: James Harden, Positions: [SG, PG], Teams: [OKC, HOU]Puntos: 994, " + 
+				"# --> Name: Stephen Curry, Positions: [PG], Teams: [GSW]Puntos: 975, " + 
+				"# --> Name: Karl-Anthony Towns, Positions: [C], Teams: [MIN]Puntos: 965, " + 
+				"# --> Name: Russell Westbrook, Positions: [PG], Teams: [OKC]Puntos: 931, " + 
+				"# --> Name: Anthony Davis, Positions: [PF, C], Teams: [NOH, NOP]Puntos: 894, " + 
+				"# --> Name: Kevin Durant, Positions: [SG, SF], Teams: [SEA, OKC, GSW]Puntos: 864, " + 
+				"# --> Name: Damian Lillard, Positions: [PG], Teams: [POR]Puntos: 825, " + 
+				"# --> Name: DeMar DeRozan, Positions: [SG], Teams: [TOR]Puntos: 820, " + 
+				"# --> Name: Wilt Chamberlain*, Positions: [C], Teams: [PHW, SFW, TOT, PHI, LAL]Puntos: 785]",Array1.toString());
+		
+	}	
+}
