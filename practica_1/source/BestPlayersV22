@@ -19,7 +19,7 @@ public class BestPlayersV22 {
 	
 	public static void main(String[] args) {
 		
-		load();
+		load(file);
 		//medicion del tiempo de ejecucion ignorando el de carga del archivo
 		long start=System.currentTimeMillis();
 		bestPlayersV2().toString();
@@ -29,7 +29,7 @@ public class BestPlayersV22 {
 	public static ArrayList<Player> bestPlayersV2 () {  //Parte publica del algoritmo
 		
 		if(players.size()==0) {
-			throw new RuntimeException("No players");
+			throw new RuntimeException("No hay jugadores");
 		}else {
 		ArrayList<Player> winners = bestPlayersV2(0,players.size()-1);
 		
@@ -79,7 +79,7 @@ public class BestPlayersV22 {
     return result;
 }
 	
-	public static void load(){ //Cargamos el archivo
+	public static void load(String file){ //Cargamos el archivo
 				
 		try{			
 		String line = "";
