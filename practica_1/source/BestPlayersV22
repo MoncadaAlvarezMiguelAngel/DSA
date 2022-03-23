@@ -1,0 +1,128 @@
+package Practica_01;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+//Quicksort()--> posible mejora: comprobar si hay más d 10 elemmentos a la derecha podemos descartar todos los de la derecha.
+//MergeSort()--> posible mejora: si hay más de 10 elementos a la izq o a la der quedarnos con los ultimos de cada lado puesto que los más grandes o más pequeños estarán en los extremos.
+
+public class BestPlayersV22 {
+		
+	public static ArrayList<Player> players = new ArrayList<Player>();
+	static int numPlayers=10;//Juego de prueba, podemos cambiar el valor y nos va a dar el top "numPlayers" con las mismas especificaciones que si le pasamos 10.
+	
+	private static String file = System.getProperty("user.dir")
+			+File.separator+"src"
+			+File.separator+"Practica_01"
+			+File.separator+"NbaStats.txt";
+	
+	public static void main(String[] args) {
+		
+		load();
+		//medicion del tiempo de ejecucion ignorando el de carga del archivo
+		long start=System.currentTimeMillis();
+		bestPlayersV2().toString();
+		long fin=System.currentTimeMillis();		
+		System.out.println("Tiempo de ejecución: "+(fin-start) +" ms");			
+	}
+	public static ArrayList<Player> bestPlayersV2 () {  //Parte publica del algoritmo
+		
+		if(players.size()==0) {
+			throw new RuntimeException("No players");
+		}else {
+		ArrayList<Player> winners = bestPlayersV2(0,players.size()-1);
+		
+//		System.out.println("The best "+numPlayers+" players are: ");		
+//		for (Player p : winners) {               //cuando termine lo tendre relleno e imprimire los jugadores
+//			int indice = winners.indexOf(p)+1;
+//			String indice2 = indice +"";         //parseamos a String para poner el indice correspondiente para cada uno de los 10 jugadores
+//			System.out.println(indice2+p);       //Imprimimos cada uno de los jugadores
+//			}
+//		}
+				return winners;	
+		}
+	}		
+	private static ArrayList<Player> bestPlayersV2(int inicio, int fin) {  				//Metodo recursivo
+		ArrayList<Player> result = new ArrayList<Player>(numPlayers);	   				//Algoritmo del mergesort (usamos indices)
+		
+		if (inicio == fin) {                                            				//Caso base (array tamaño minimo)
+	    result.add(players.get(inicio));                                  				//Añademe el elemento de la primera posicion del array original 
+    } else {   																			//En cada llamada recursiva devolvemos un array pequeño con los primeros n elementos del array
+	   int mitad = (inicio + fin) / 2;                                     				//Al combinar arrays me quedo con los "numPlayers" mejores jugadores
+	   ArrayList<Player> p1 = bestPlayersV2(inicio, mitad);                				//Todo ocurre si inicio > fin
+	   ArrayList<Player> p2 = bestPlayersV2(mitad+1, fin);
+	   
+	   int i=0;
+	   int j=0;
+	   while(result.size() < numPlayers && i <= p1.size()-1 && j <= p2.size()-1) {
+	      if(p1.get(i).getScore() > p2.get(j).getScore()) {
+	          result.add(p1.get(i));
+	          i++;
+	     }
+	     else {
+	     result.add(p2.get(j));
+	     j++;	     
+	     }
+	}
+	
+	while(result.size() < numPlayers && i <= p1.size()-1) {
+	      result.add(p1.get(i));
+	      i++;
+	}
+	
+	while(result.size() < numPlayers && j <= p2.size()-1) {
+	      result.add(p2.get(j));
+	      j++;	
+		}
+	}
+    return result;
+}
+	
+	public static void load(){ //Cargamos el archivo
+				
+		try{			
+		String line = "";
+		Scanner scan = null; 
+		String[] tokens = null;
+		Player UltimoJugador=null;
+		String nombreUltimoJugador="";
+		scan = new Scanner(new File(file));
+
+		while(scan.hasNextLine()){
+			line = scan.nextLine().trim();
+			if (line.startsWith("#")||line.isEmpty()) continue;
+			tokens = line.split(";");
+			double FG = valuedouble(tokens[7]);
+			double PTS = valuedouble(tokens[8]);
+//			if(tokens.length!=9)continue;
+//			int score = (int) ((FG*PTS)/100);
+			if(!(tokens[2].equals(nombreUltimoJugador))) {
+				UltimoJugador= new Player(tokens[2],tokens[6],tokens[4],(int)((FG*PTS)/100));
+				players.add(UltimoJugador);
+				nombreUltimoJugador= tokens[2];
+			}
+			else {
+				
+				UltimoJugador.add(tokens[6], tokens[4], (int) (FG*PTS)/100);
+			}			
+		}		
+		scan.close();
+		}
+		catch(Exception e){
+			System.out.println("Error al cargar el archivo --> " + e.getMessage());
+			System.exit(-1);
+		}
+	}
+	
+	private static double valuedouble(String value) {
+		if(value.isEmpty())return 0;
+		try {
+			double numDouble = Double.parseDouble(value.replace(",", ".")); //lo parseamos a double poniendo "." para separar la parte entera de la decimal
+			return numDouble;   //La parte decimal del double se expresa con el "." y el el archivo de texto que es string viene con ","
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
+	
+}
