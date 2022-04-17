@@ -1,0 +1,72 @@
+package org.eda2.Practica_02;
+
+import java.util.LinkedList;
+
+public class TestAlgoritmo {
+
+	public static void main(String[] args) {
+		densidad();
+	}
+
+	private static void densidad() {
+		
+		Algoritmo m = new Algoritmo(); 
+		m.setOrigen("0"); 
+		m.setDirigido(false);
+		int N = 5000; //V�rtices del grafo
+		int porcentaje = 10;
+		
+		
+		int minAristas = N - 1;//Ar�stas minimas para un grafo conexo
+		int maxAristas = N * (N - 1) / 2;//Aristas m�ximas para un grafo conexo
+		int aumenta=((maxAristas-minAristas)*porcentaje)/100;//Aristas a�adidas en cada vuelta (ir� aumentando para ver la diferencia entre algoritmos)
+		LinkedList<Arista> aux = new LinkedList<>();
+		long start = 0;
+		long end = 0;
+		
+		for (int i = 0; i < N; i++) {
+			for (int j = i+1; j < N; j++) {
+				double peso = (int)(Math.random()*100)+1; 
+				if(i+1 == j) {
+					m.addEdge(i+"", j+"", peso);
+				}else {
+					aux.add(new Arista(i+"", j+"", peso));
+				}
+			}
+		}
+		
+		
+		System.out.println("NumVertices\tNumAristas\tTPrim\tTPrimPQ\tTKruskal");
+		boolean stop = false;
+		do {
+			stop = aux.isEmpty();
+			System.out.print(m.numberOfVertex()+"\t"+m.numberOfEdges());
+			//Medimos el tiempo para el algoritmo de Prim
+			start = System.currentTimeMillis();
+			m.prim();
+			end = System.currentTimeMillis();
+			System.out.print("\t"+(end-start));
+			
+			//Medimos el tiempo para el algoritmo de PrimPQ
+			start = System.currentTimeMillis();
+			m.primPQ();
+			end = System.currentTimeMillis();
+			System.out.print("\t"+(end-start));
+			
+			//Medimos el tiempo para el algoritmo de Kruskal
+			start = System.currentTimeMillis();
+			m.kruskal();
+			end = System.currentTimeMillis();
+			System.out.println("\t"+(end-start));
+			
+			//Agregamos tantas aristas como indique los incrementos (siempre que queden)
+			for (int i = 0; i < aumenta && !aux.isEmpty(); i++) {
+				Arista e = aux.poll();//Saca la arista de aux
+				m.addEdge(e.getOrigen(), e.getDestino(), e.getPeso());//La agrega al grafo
+			}
+			
+		}while(!stop);
+		
+	}
+
+}
