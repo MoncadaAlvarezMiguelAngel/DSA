@@ -1,0 +1,40 @@
+package org.eda2.Practica_02;
+
+import java.io.File;
+import java.util.ArrayList;
+
+public class MainAlgoritmo {
+
+
+    private static String file = System.getProperty("user.dir")
+            +File.separator+"src"
+            +File.separator+"org"
+            +File.separator+"eda2"
+            +File.separator+"Practica_02"
+            +File.separator+"graphPrimKruskal.txt";
+
+    public static void main(String[] args) {
+
+    	Algoritmo a = new Algoritmo(file,"A");
+    	
+    	//Estructuras donde guardaremos los resultados proporcionados por cada algoritmo
+        ArrayList<Arista> prim = a.prim();
+        ArrayList<Arista> primPQ = a.primPQ();
+        ArrayList<Arista> kruskal = a.kruskal();
+        
+        System.out.println(prim);
+        System.out.println(primPQ);
+        System.out.println(kruskal);
+
+        PesoArista pesoprim = new PesoArista();
+        PesoArista pesoprimPQ = new PesoArista();
+        PesoArista pesoKruskal = new PesoArista();
+
+        pesoprim.totalPeso(prim);
+        System.out.println(pesoprim);
+        pesoprimPQ.totalPeso(primPQ);
+        System.out.println(pesoprimPQ);
+        pesoKruskal.totalPeso(kruskal);
+        System.out.println(pesoKruskal);
+    }
+}
