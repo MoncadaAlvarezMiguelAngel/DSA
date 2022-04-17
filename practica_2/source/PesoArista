@@ -1,0 +1,33 @@
+package org.eda2.Practica_02;
+
+import java.util.ArrayList;
+
+public class PesoArista {
+
+    private double pesoTotal;
+
+    public PesoArista() {
+        this.pesoTotal = 0.0;
+}
+
+    public double getPesoTotal() {
+        return this.pesoTotal;
+    }
+
+    public void setPesoTotal(double pesoTotal) {
+        this.pesoTotal = pesoTotal;
+    }
+
+    public double totalPeso(ArrayList<Arista> list) {
+        for (Arista it : list) {
+            setPesoTotal(getPesoTotal() + it.getPeso());
+        }
+        return getPesoTotal();
+    }
+
+    @Override
+    public String toString() {
+        return " peso = " + this.pesoTotal;
+    }
+
+}
