@@ -1,0 +1,355 @@
+package org.eda2.Practica_02;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Scanner;
+import java.util.TreeMap;
+
+
+public class Algoritmo {
+	
+	private String origen;
+	private HashMap <String, HashMap<String, Double>> grafo;//Key=Vertice, Key2=, Vertice, Value=Peso
+	private boolean dirigido;
+	
+	/**
+	 * M�todo constructor vac�o
+	 */
+	public Algoritmo() {
+		
+		this.grafo = new HashMap <String, HashMap<String, Double>>();
+		this.dirigido = true;		
+	}
+	
+	/**
+	 * M�todo constructor
+	 * Contiene dentro la l�neas correspondientes a la carga del archivo.txt
+	 * que tendr� el grafo en forma de string.
+	 * 
+	 * @param file
+	 * @param source
+	 */
+	public Algoritmo(String file, String source) {
+		
+		this.grafo = new HashMap <String, HashMap<String, Double>>();
+		this.dirigido = true;		
+		this.origen = source;
+		Scanner scan = null;
+		String linea = "";
+		String[] aux = null;
+
+		try {
+			scan = new Scanner(new File(file));
+		} catch (Exception ex) {
+			System.out.println("Error al cargar el archivo. El sistema no puede encontrar el archivo especificado.");
+			System.exit(-1);
+		}
+		//Si la linea es un "0" significa que no representa aristas y por tanto no es dirigido
+		linea = scan.nextLine();
+		setDirigido(linea.equals("0") ? false : true);
+		
+		linea = scan.nextLine();
+		for (int i = 0; i < Integer.valueOf(linea); i++) {
+			addVertex(scan.nextLine());
+		}
+		
+		linea = scan.nextLine();
+		for (int i = 0; i < Integer.valueOf(linea); i++) {
+			aux = scan.nextLine().split(" ");
+			addEdge(aux[0], aux[1], Double.parseDouble(aux[2]));
+		}
+	}
+			
+	/**
+	 * Get grafo
+	 * @return
+	 */
+	
+	public HashMap <String, HashMap<String, Double>> getGrafo() {
+		return grafo;
+	}
+	
+	/**
+	 * Get origen
+	 * @return
+	 */
+	public String getOrigen() {
+		return origen;
+	}
+	
+	/**
+	 * Set origen
+	 * @return
+	 */
+    public void setOrigen(String source) {
+		this.origen = source;
+	}
+    
+    /**
+	 * Get dirigido
+	 * @return
+	 */
+	public boolean getDirigido() {
+  		return this.dirigido;
+  	}
+	
+	/**
+	 * Set dirigido
+	 * @return
+	 */
+	public void setDirigido(boolean directed) {
+  		this.dirigido = directed;
+  	}
+	
+    /**
+     * M�todo para a�adir un v�rtice al grafo
+     * @param v
+     */
+	public void addVertex(String v) {
+        if (this.grafo.containsKey(v)) return;
+        this.grafo.put(v, new HashMap<String, Double>());
+  	} 
+	
+	/**
+	 * M�todo que a�ade una arista con un peso dado entre dos v�rtices dados
+	 * @param v1
+	 * @param v2
+	 * @param w
+	 */
+  	public void addEdge(String v1, String v2, double w) {
+  		addVertex(v1);
+  		addVertex(v2);
+  		this.grafo.get(v1).put(v2, w);
+  		if (!this.dirigido) {
+        	this.grafo.get(v2).put(v1, w);
+       	}
+  	}
+  	
+  	/**
+  	 * M�todo que nos hace saber si dos v�rtices del grafo son adyacentes o no
+  	 * @param v1
+  	 * @param v2
+  	 * @return
+  	 */
+  	public boolean isAdjacent(String v1, String v2) {
+		return (grafo.containsKey(v1) && grafo.get(v1).containsKey(v2));
+
+	}
+  	
+  	 /**
+  	  * M�todo que indica si el grafo contiene una arista o no
+  	  * @param v1
+  	  * @param v2
+  	  * @return
+  	  */
+  	public boolean containsEdge(String v1, String v2) {
+		return this.grafo.containsKey(v1) && this.grafo.get(v1).containsKey(v2);
+	}
+  	
+  	/**
+  	 * M�todo que devuelve el peso de una arista determinada por dos v�rtices dados
+  	 * @param v1
+  	 * @param v2
+  	 * @return
+  	 */
+  	public Double getWeight (String v1, String v2) {
+		return containsEdge(v1, v2) ? this.grafo.get(v1).get(v2) : null;
+	}
+  	
+  	/**
+  	 * M�todo que devuelve el n�mero de aristas del grafo
+  	 * @return
+  	 */
+  	public int numberOfEdges() {
+		int count = 0;
+		for (HashMap<String, Double> itMap : this.grafo.values())
+			count += itMap.size();
+		return count;
+	}
+  	
+  	/**
+  	 * M�todo que devuelve el n�mero de v�rtices del grafo
+  	 * @return
+  	 */
+  	public int numberOfVertex() {
+		return this.grafo.size();
+	}
+  	
+    /**
+     * Obtenci�n del camino m�nimo a trav�s de prim
+     * @return
+     */
+  	public ArrayList<Arista> prim(){
+		if(origen == null || !this.grafo.containsKey(origen)) return null;
+		
+		//Estructuras a usar en el algoritmo
+		HashMap<String, Double> pesos = new HashMap<>();
+		HashMap<String, String> aristas = new HashMap<>();
+		HashSet<String> vertices = new HashSet<>();
+		ArrayList<Arista> res = new ArrayList<Arista>(); 
+		String from = null;
+		
+		//A�adimos los v�rtices del grafo y eliminamos el del origen
+		for (String v : this.grafo.keySet()) {
+			vertices.add(v);
+		}
+		vertices.remove(origen);
+		
+		//Obtenemos el peso de cada uno de los v�rtices del grafo al origen
+		for (String v : vertices) {
+			Double weight = getWeight(origen, v);
+			if(weight != null) { //Obtenemos aquellos v�rtices que sean adyacentes al origen directamente
+				aristas.put(v, origen);
+				pesos.put(v, weight);
+			}else { //Obtenemos aquellos v�rtices no adyacentes al origen directamente
+				aristas.put(v, null);
+				pesos.put(v, Double.MAX_VALUE);
+			}
+			
+		}
+		//Obtenemos el origen con peso 0.0 hacia s� mismo
+		aristas.put(origen, origen);
+		pesos.put(origen, 0.0);
+		
+		
+		
+		while(!vertices.isEmpty()) {
+			double min = Double.MAX_VALUE;
+			from = null;
+			for (String v : vertices) {
+				double weight = pesos.get(v);
+				if(weight < min) { 
+					min = weight;
+					from = v;
+				}
+			}
+			
+			if(from == null) break; //Se para porque no es conexo
+			vertices.remove(from); //Se elimina el vertice de menos peso de los restantes
+			String aux = aristas.get(from); //Se obtiene el vertice desde el que se llega
+			res.add(new Arista(aux, from, getWeight(aux, from))); //Se agrega la arista a la solucion
+			//Para el resto de vertices restantes
+			for (String to : vertices) {
+				Double weight = getWeight(from, to); //CUIDADO, PUEDE SER NULO
+				if(weight != null && weight < pesos.get(to)) {
+					pesos.put(to, weight);
+					aristas.put(to, from);
+				}
+			}
+		}
+
+		return res;
+  	}
+  	
+  	/**
+     * Obtenci�n del camino m�nimo a trav�s de prim utilizando PriorityQueue
+     * @return
+     */
+  	 public ArrayList<Arista> primPQ(){
+  		 
+ 		String orig = this.origen;
+ 		if(orig == null || !this.grafo.containsKey(orig)) return null;
+ 		
+ 		//Estructuras a usar
+ 		HashSet<String> vertices = new HashSet<>();
+ 		PriorityQueue<Arista> pq = new PriorityQueue<>(); 
+ 		ArrayList<Arista> res = new ArrayList<Arista>();
+ 		String from = orig;
+ 		String to;
+ 		Arista aux;
+ 		Double weight;
+ 		
+ 		//Volcamos los v�rtices del grafo
+ 		for (String v : this.grafo.keySet()) {
+ 			vertices.add(v);
+ 		}
+ 		vertices.remove(orig);
+ 		
+ 		
+ 		while(!vertices.isEmpty()) {
+ 			for (Entry<String, Double> it : this.grafo.get(from).entrySet()) {
+ 				to = it.getKey();
+ 				weight = it.getValue();
+ 				if(vertices.contains(to)) {
+ 					aux = new Arista(from, to, weight);
+ 					pq.add(aux);
+ 				}
+ 			}
+ 			
+ 			do {
+ 				aux = pq.poll();
+ 				from = aux.getOrigen();
+ 				to = aux.getDestino();
+ 				weight = aux.getPeso();
+ 			} while (!vertices.contains(to));
+ 			
+ 			vertices.remove(to);
+ 			res.add(new Arista(aux.getOrigen(), aux.getDestino(), aux.getPeso()));
+ 			from = to;
+ 		}
+ 		return res;
+ 	}
+  	 
+  	/**
+      * Obtenci�n del camino m�nimo a trav�s de Kruskal
+      * @return
+      */
+	public ArrayList<Arista> kruskal(){
+		String orig = this.origen;
+		if(orig == null || !this.grafo.containsKey(orig)) return null;
+		
+		//Estructuras a usar
+		TreeMap<String, String> aristas = new TreeMap<>();
+		TreeMap<String, Double> vertices = new TreeMap<>();
+		ArrayList<Arista> res = new ArrayList<Arista>();
+		
+		//Volcamos los vertices con coste infinito(despu�s cambiar� conforme se
+		//encuentren rutas mejores).
+		for (String v : grafo.keySet()) {
+			vertices.put(v, Double.MAX_VALUE);
+		}
+		boolean isFirst = true;
+		while(!vertices.isEmpty()) {
+			//Busqueda de la arista de menor peso
+			String minKey = vertices.firstKey();
+			if(isFirst) {//Si es la primera iteraci�n, el punto de partida es origen
+				minKey = orig;
+				isFirst = false;
+			}
+			Double minValue = Double.MAX_VALUE;//lo inicializamos a infinito
+			for (Entry<String, Double> e : vertices.entrySet()) {
+				if(e.getValue() < minValue) {
+					minValue = e.getValue();
+					minKey = e.getKey();
+				}
+			}
+			vertices.remove(minKey);//Eliminamos la arista 
+			
+			
+			for (Entry<String,Double> it : grafo.get(minKey).entrySet()) {
+				String to = it.getKey();
+				Double dActual = getWeight(aristas.get(to), to);
+				dActual = dActual == null ? Double.MAX_VALUE : dActual;
+				//Si la nueva arista es mejor sustituye a la anterior
+				if(vertices.containsKey(to) && it.getValue() < Double.MAX_VALUE && it.getValue() < dActual) {
+					vertices.put(to, it.getValue());
+					aristas.put(to, minKey);
+					
+				}
+			}
+		}
+		
+		//Volcamos en res las mejores aristas obtenidas
+		for (Entry<String, String> it : aristas.entrySet()) {
+			String to = it.getKey();
+			String from = it.getValue();
+			res.add(new Arista(from, to, getWeight(from, to))); //Se agrega la arista a la solucion
+			
+		}
+		return res;
+	}
+	
+}
